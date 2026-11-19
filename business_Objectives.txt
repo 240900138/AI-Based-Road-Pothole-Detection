@@ -1,0 +1,70 @@
+Business Objectives
+ 
+Business objectives:
+
+The primary objective is to build and deploy a deep-learning model that recognises a pothole in a road photograph and gives the municipality a clear, immediate decision. The goals are to:
+•Classify an uploaded road image as Pothole Detected or Normal Road with high accuracy.
+•Find as many real potholes as possible (high pothole recall), because a missed pothole is more costly than a false            alarm.
+•Report a confidence percentage and a plain-language recommendation for every image.
+•Keep a time-stamped detection history that can be downloaded as a CSV file.
+•Show model performance (classification report and confusion matrix) so that officials can judge how far to trust the result.
+•Reduce the effort and subjectivity of manual road-image screening.
+
+
+Business success criteria:
+
+The criteria below were set for the project. The results come from the saved model and the test images supplied with the project; the note on test-set overlap in the Model Evaluation section explains why the accuracy figure must be read with care.
+Success criterion	Target	Result
+Overall accuracy on the test images	80% or higher	83.82% (114 of 136 images)
+Pothole recall (potholes found)	90% or higher	95.38% (62 of 65 potholes)
+Pothole precision	75% or higher	76.54%
+Area under the ROC curve	0.90 or higher	0.945
+Time to analyse one image	Under 2 seconds	About 0.11 seconds once the model is loaded
+Result shown to the user	Prediction, confidence, recommendation	Achieved in the Streamlit application
+Detection history	Downloadable CSV	Achieved
+
+
+Business background:
+
+Municipalities are responsible for maintaining the road network. Potholes form when water enters cracks in the asphalt and traffic breaks the weakened surface, and they damage vehicles, endanger motorists, cyclists and pedestrians, and become larger and costlier to repair the longer they are left. Most municipalities depend on residents reporting potholes or on inspectors driving the roads. Both approaches are reactive and cover only part of the network. Cameras on phones, vehicles and drones now make road images cheap to collect, but a person must still look at every image. Computer vision with deep learning can perform this screening automatically, so that officials only need to review the images flagged as potholes.
+
+Requirements:
+
+•Data: a labelled set of road images divided into training, validation and test sets. The project uses the public Kaggle “Pothole Detection Dataset”, downloaded with download_dataset.py.
+•Software: Python with TensorFlow/Keras, NumPy, pandas, Pillow, Matplotlib, Seaborn, scikit-learn, Streamlit and kagglehub (listed in requirements.txt).
+•Model: one saved Keras model (pothole_model.keras, about 61 MB) that contains the preprocessing, augmentation and CNN layers.
+•Evaluation: accuracy, precision, recall, F1-score, confusion matrix and training curves.
+•Output: prediction, confidence and recommendation for each image, plus a history table.
+•Delivery: a Streamlit web application and command-line scripts; all work stored on GitHub as the brief requires.
+
+Constraints:
+
+•Small, low-resolution images: the dataset contains 1,401 images, and every image checked is only 64 × 64 pixels. They are enlarged to 224 × 224 for the network, which adds no new detail.
+•Unbalanced training data: 864 of the 1,157 training images (74.7%) are potholes, whereas the test set is nearly balanced (65 potholes and 71 normal roads).
+•Test images are not independent: every one of the 136 test images is an exact (byte-identical) copy of an image in the training or validation folders. The reported test accuracy is therefore not a clean measure of performance on new roads.
+•Different kinds of picture: many normal-road images are wide landscape photographs, whereas pothole images are close-ups of damaged asphalt, so the model may learn the type of photograph instead of the damage itself.
+•Classification only: the model says whether an image contains a pothole; it does not locate it, measure its size or rate its severity, and the image has no GPS position.
+•Support tool: results must be confirmed by an inspector before a repair is ordered.
+•Privacy: road photographs can show people and number plates, which must be protected under the Protection of Personal Information Act (POPIA).
+
+Risks
+Risk	Impact	Probability	Mitigation
+False alarm (normal road flagged)	Low to medium – wasted inspection visit	High (27% of normal test images)	Raise the decision threshold; show confidence; require human confirmation.
+Missed pothole	High – damage and safety risk	Low (4.6% of test potholes)	Keep a low threshold for screening; retrain regularly.
+Model fails on real local roads	High – unreliable results	Medium	Collect and label local images; evaluate on a truly independent test set.
+Overfitting to image style	Medium	Medium	Add varied normal-road close-ups; use augmentation and transfer learning.
+Poor lighting, shadows or water	Medium	Medium	Include such conditions in the training data.
+Exposure of personal information in images	High – legal and reputational	Low	Blur faces and plates; store images securely; apply POPIA controls.
+
+
+Tools and techniques:
+
+Area	Tool / technique
+Language and version control	Python 3; Git and GitHub with the GitHub Project board
+Deep learning	TensorFlow and Keras: Sequential CNN, Conv2D, MaxPooling2D, Dense,
+Dropout, Adam optimiser, callbacks
+Data handling	Keras image_dataset_from_directory, NumPy, pandas, Pillow
+Evaluation	scikit-learn metrics; Matplotlib and Seaborn charts
+User interface	Streamlit application with five pages
+Techniques	Image rescaling, data augmentation (flip, rotation, zoom), dropout, early stopping, learning-rate reduction, binary cross-entropy loss, sigmoid output
+
